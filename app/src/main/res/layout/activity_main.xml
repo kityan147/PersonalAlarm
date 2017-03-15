@@ -95,8 +95,6 @@
         android:layout_alignBottom="@id/call_switch"
         android:layout_centerHorizontal="true" />
 
-
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -105,6 +103,17 @@
         android:id="@+id/sound_textview"
         android:layout_above="@id/call_switch"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/STOP"
+        android:text="STOP BUZZER"
+        android:layout_marginLeft="20dp"
+        android:textSize="12sp"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@id/sound_switch"
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -123,6 +132,13 @@
         android:layout_alignStart="@id/call_switch"/>
 
     <EditText
+        android:id="@+id/msg_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        />
+
+    <EditText
         android:layout_marginTop="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -138,7 +154,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/sms_edittext"
-        android:text="992"
+        android:text="61956999"
         android:layout_below="@+id/sms_textview"
         android:layout_centerHorizontal="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -154,11 +170,10 @@
         android:layout_below="@id/sms_switch"
         android:layout_toStartOf="@id/call_switch"
         />
-
-    <ImageView
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/errorinfo"
+        android:background="@drawable/errorinfo"
         android:layout_alignParentStart="true"
         android:layout_below="@id/smsno_textview"
         android:id="@+id/info_imageview"

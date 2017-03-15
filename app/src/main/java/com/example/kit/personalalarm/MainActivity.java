@@ -1,11 +1,7 @@
 package com.example.kit.personalalarm;
 
 import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,6 +24,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -60,9 +57,9 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
     private GPS gps;
     private double lat;
     private double lon;
-
-
-    String notification_text = "Not Connected. Click this to Reconnect.";
+    public boolean EditFlag = false;
+    public String Em_text = "Help, I'm at ";
+    //
 
     private BluetoothAdapter bluetoothAdapter = null;
     private BluetoothDevice bluetoothDevice = null;
@@ -71,9 +68,9 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
 
     private StringBuilder recDataString = new StringBuilder();
 
-    ImageView icon_imageview,info_imageview;
+    ImageView icon_imageview;
     EditText call_edittext,callno_edittext,smsno_textview,sms_edittext;
-    Button call_button, sms_button,gps_button;
+    Button call_button, sms_button,gps_button, stop_button,info_imageview;
     Switch led_switch,sound_switch,call_switch,sms_switch;
     TextView info_textview;
 
@@ -95,8 +92,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //Arthor: YAN Tsz Kit Student ID:54106008, Lo Wai Hin
-
+        //Arthor: YAN Tsz Kit Student ID:54106008
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -106,13 +102,34 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
         connecting = new ProgressDialog(this);
         builderSingle = new AlertDialog.Builder(this);
 
-        info_imageview = (ImageView) findViewById(R.id.info_imageview);
-        info_imageview.setImageResource(R.drawable.errorinfo);
+        info_imageview = (Button) findViewById(R.id.info_imageview);
+        //info_imageview.setImageResource(R.drawable.errorinfo);
         info_imageview.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
+                if (EditFlag) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setTitle("Edit the emergency message");
+                    final EditText editText = new EditText(MainActivity.this);
+                    editText.setText(Em_text);
+                    dialog.setView(editText);
+
+                    dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        // do something when the button is clicked
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            Em_text = editText.getText().toString();
+                        }
+                    });
+                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        // do something when the button is clicked
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            //...
+                        }
+                    });
+                    dialog.show();
+                }
                 if(info_textview.getVisibility() == View.VISIBLE)
                     info_textview.setVisibility(View.INVISIBLE);
                 else
@@ -138,6 +155,16 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                 writeSetting();
             }
         });
+
+        stop_button = (Button) findViewById(R.id.STOP);
+        stop_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v)
+            {
+                mDataCommThread.write("4");
+            }
+        });
+
         /*
         gps_button = (Button) findViewById(R.id.gps_button);
         gps_button.setOnClickListener(new View.OnClickListener(){
@@ -227,6 +254,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                 writeSetting();
             }
         });
+
         call_button = (Button) findViewById(R.id.call_button);
         call_button.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -374,19 +402,6 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
             }
 
         }
-
-        final int notifyID = 1; // 通知的識別號碼
-        final int requestCode = notifyID; // PendingIntent的Request Code
-        final Intent intent = new Intent(getApplicationContext(), MainActivity.class); // 開啟另一個Activity的Intent
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT; // ONE_SHOT：PendingIntent只使用一次；CANCEL_CURRENT：PendingIntent執行前會先結束掉之前的；NO_CREATE：沿用先前的PendingIntent，不建立新的PendingIntent；UPDATE_CURRENT：更新先前PendingIntent所帶的額外資料，並繼續沿用
-        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext()); // 建立TaskStackBuilder
-        stackBuilder.addParentStack(MainActivity.class); // 加入目前要啟動的Activity，這個方法會將這個Activity的所有上層的Activity(Parents)都加到堆疊中
-        stackBuilder.addNextIntent(intent); // 加入啟動Activity的Intent
-        final PendingIntent pendingIntent = stackBuilder.getPendingIntent(requestCode, flags); // 取得PendingIntent
-        final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); // 取得系統的通知服務
-
-        final Notification notification = new Notification.Builder(getApplicationContext()).setSmallIcon(R.drawable.connected).setContentTitle("MVP-A").setContentText(notification_text).setContentIntent(pendingIntent).build(); // 建立通知
-        notificationManager.notify(notifyID, notification); // 發送通知
 
     }
 
@@ -588,6 +603,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                     public void run() {
                         connecting.cancel();
                         Toast.makeText(getBaseContext(),"Connection Failure.",Toast.LENGTH_SHORT).show();
+                        EditFlag = false;
                     }
                 });
 
@@ -602,6 +618,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                     @Override
                     public void run() {
                         writeSetting();
+                        EditFlag = true;
                         icon_imageview.setImageResource(R.drawable.connected);
                         led_switch.setEnabled(true);
                         sound_switch.setEnabled(true);
@@ -609,11 +626,11 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                         sms_switch.setEnabled(true);
                         call_button.setEnabled(true);
                         sms_button.setEnabled(true);
-                        info_textview.setText("Connected.");
-                        info_imageview.setImageResource(R.drawable.normalinfo);
+                        info_textview.setText("Current Emergency Message is : "+Em_text+"Your Location.");
+                        info_imageview.setBackgroundResource(R.drawable.normalinfo);
+                        //info_imageview.setImageResource(R.drawable.normalinfo);
                         info_textview.setBackgroundColor(getBaseContext().getResources().getColor(R.color.grey));
-                        notification_text = "Defending Harm from you.";
-                        Toast.makeText(getBaseContext(), "Device Connected.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Device Connected", Toast.LENGTH_SHORT).show();
                         connecting.cancel();
                     }
                 });
@@ -669,23 +686,29 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (strReceived.contains("H")) {
-                                //GPS
-                                gps = new GPS(MainActivity.this);
+                            if(strReceived.contains("H"))
+                            {
+                            //GPS
+                            gps = new GPS(MainActivity.this);
 
-                                if (gps.isgetLocation()) {
+                            if(gps.isgetLocation()){
 
-                                    lon = gps.getLongitude();
-                                    lat = gps.getLatitude();
-                                } else
-                                    gps.showSettingsAlert();
+                                lon = gps.getLongitude();
+                                lat = gps.getLatitude();
+                            }
+                            else
+                            {
+                                gps.showSettingsAlert();
                             }
                             //GPS
 
-                            if (sms_switch.isChecked())
-                                sendSMS(sms_edittext.getText().toString(), "HELP! I'm at " + "https://www.google.com.hk/maps/@" + Double.toString(lat) + "," + Double.toString(lon) + ",21z?hl=zh-TW&authuser=0+");
-                            if (call_switch.isChecked())
-                                call(call_edittext.getText().toString());
+                                if(sms_switch.isChecked())
+                                    sendSMS(sms_edittext.getText().toString(),Em_text+
+                                            "https://www.google.com.hk/maps?q="+Double.toString(lat)+
+                                            ","+Double.toString(lon)+"&z=21");//?hl=zh-TW&authuser=0+
+                                if(call_switch.isChecked())
+                                    call(call_edittext.getText().toString());
+                            }
                         }
                     });
                 }catch(IOException e){};
@@ -740,8 +763,6 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
         }
 
     }
-
-
 
 
 /*
