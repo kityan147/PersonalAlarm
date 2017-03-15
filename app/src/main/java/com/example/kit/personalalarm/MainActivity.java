@@ -1,6 +1,10 @@
 package com.example.kit.personalalarm;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
     public String Em_text = "Help, I'm at ";
     //
 
+    String notification_text = "Not Connected. Click this to Reconnect.";
+
     private BluetoothAdapter bluetoothAdapter = null;
     private BluetoothDevice bluetoothDevice = null;
     private BluetoothSocket bluetoothSocket = null;
@@ -83,6 +89,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
     private Handler bluetoothIn;
     final int handlerState = 0;
 
+    private NotificationManager notificationManager;
 
     // SPP UUID service - this should work for most devices
 
@@ -403,6 +410,20 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
 
         }
 
+        final int notifyID = 1; // 通知的識別號碼
+        final int requestCode = notifyID; // PendingIntent的Request Code
+        final Intent intent = new Intent(getApplicationContext(), MainActivity.class); // 開啟另一個Activity的Intent
+        final int flags = PendingIntent.FLAG_UPDATE_CURRENT; // ONE_SHOT：PendingIntent只使用一次；CANCEL_CURRENT：PendingIntent執行前會先結束掉之前的；NO_CREATE：沿用先前的PendingIntent，不建立新的PendingIntent；UPDATE_CURRENT：更新先前PendingIntent所帶的額外資料，並繼續沿用
+        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext()); // 建立TaskStackBuilder
+        stackBuilder.addParentStack(MainActivity.class); // 加入目前要啟動的Activity，這個方法會將這個Activity的所有上層的Activity(Parents)都加到堆疊中
+        stackBuilder.addNextIntent(intent); // 加入啟動Activity的Intent
+        final PendingIntent pendingIntent = stackBuilder.getPendingIntent(requestCode, flags); // 取得PendingIntent
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); // 取得系統的通知服務
+
+        final Notification notification = new Notification.Builder(getApplicationContext()).setSmallIcon(R.drawable.connected).setContentTitle("MVP-A").setContentText(notification_text).setContentIntent(pendingIntent).build(); // 建立通知
+        notificationManager.notify(notifyID, notification); // 發送通知
+
+
     }
 
     @Override
@@ -628,6 +649,8 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                         sms_button.setEnabled(true);
                         info_textview.setText("Current Emergency Message is : "+Em_text+"Your Location.");
                         info_imageview.setBackgroundResource(R.drawable.normalinfo);
+                        notification_text = "Defending Harm from you.";
+                        notificationManager.notify();
                         //info_imageview.setImageResource(R.drawable.normalinfo);
                         info_textview.setBackgroundColor(getBaseContext().getResources().getColor(R.color.grey));
                         Toast.makeText(getBaseContext(), "Device Connected", Toast.LENGTH_SHORT).show();
