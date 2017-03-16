@@ -57,7 +57,8 @@
         android:layout_centerHorizontal="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:inputType="phone"
-        android:maxLength="14"/>
+        android:maxLength="14"
+        />
     <EditText
         android:layout_marginTop="0dp"
         android:layout_width="wrap_content"
@@ -67,7 +68,7 @@
         android:layout_below="@+id/call_textview"
         android:layout_toLeftOf="@id/call_edittext"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:inputType="phone"/>
+        android:inputType="phone" />
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -82,7 +83,7 @@
         android:text="Edit"
         android:textSize="10sp"
         android:layout_below="@id/call_switch"
-        android:layout_toStartOf="@id/call_switch"
+        android:layout_toRightOf="@id/call_edittext"
         />
 
     <TextView
@@ -136,6 +137,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
+        android:visibility="invisible"
+        android:enabled="false"
         />
 
     <EditText
@@ -159,7 +162,8 @@
         android:layout_centerHorizontal="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:inputType="phone"
-        android:maxLength="14"/>
+        android:maxLength="14"
+        android:layout_toRightOf="@id/smsno_textview"/>
 
     <Button
         android:layout_width="60dp"
@@ -168,7 +172,7 @@
         android:text="Edit"
         android:textSize="10sp"
         android:layout_below="@id/sms_switch"
-        android:layout_toStartOf="@id/call_switch"
+        android:layout_toRightOf="@id/sms_edittext"
         />
     <Button
         android:layout_width="50dp"

@@ -22,6 +22,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -90,6 +91,8 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
     final int handlerState = 0;
 
     private NotificationManager notificationManager;
+    private Notification notification;
+    private Notification.Builder builder;
 
     // SPP UUID service - this should work for most devices
 
@@ -116,27 +119,6 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
             @Override
             public void onClick(View v)
             {
-                if (EditFlag) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                    dialog.setTitle("Edit the emergency message");
-                    final EditText editText = new EditText(MainActivity.this);
-                    editText.setText(Em_text);
-                    dialog.setView(editText);
-
-                    dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        // do something when the button is clicked
-                        public void onClick(DialogInterface arg0, int arg1) {
-                            Em_text = editText.getText().toString();
-                        }
-                    });
-                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        // do something when the button is clicked
-                        public void onClick(DialogInterface arg0, int arg1) {
-                            //...
-                        }
-                    });
-                    dialog.show();
-                }
                 if(info_textview.getVisibility() == View.VISIBLE)
                     info_textview.setVisibility(View.INVISIBLE);
                 else
@@ -200,6 +182,33 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
             */
         info_textview = (TextView) findViewById(R.id.info_textview);
         info_textview.setVisibility(View.INVISIBLE);
+        info_textview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (EditFlag) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setTitle("Edit the emergency message");
+                    final EditText editText = new EditText(MainActivity.this);
+                    editText.setText(Em_text);
+                    dialog.setView(editText);
+
+                    dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        // do something when the button is clicked
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            Em_text = editText.getText().toString();
+                            info_textview.setText(Html.fromHtml("<u><FONT COLOR=\"#355EE6\" >" + "Edit Message: "+"</Font></u>"+"<FONT COLOR=\"#000000\" >"+Em_text+" [Your Location]"));
+                        }
+                    });
+                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        // do something when the button is clicked
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            //...
+                        }
+                    });
+                    dialog.show();
+                }
+            }
+        });
         sms_switch.setChecked(true);
         led_switch = (Switch) findViewById(R.id.led_switch);
         led_switch.setOnClickListener(new View.OnClickListener()
@@ -413,6 +422,9 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
         final int notifyID = 1; // 通知的識別號碼
         final int requestCode = notifyID; // PendingIntent的Request Code
         final Intent intent = new Intent(getApplicationContext(), MainActivity.class); // 開啟另一個Activity的Intent
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setAction(Intent.ACTION_MAIN);
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT; // ONE_SHOT：PendingIntent只使用一次；CANCEL_CURRENT：PendingIntent執行前會先結束掉之前的；NO_CREATE：沿用先前的PendingIntent，不建立新的PendingIntent；UPDATE_CURRENT：更新先前PendingIntent所帶的額外資料，並繼續沿用
         final TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext()); // 建立TaskStackBuilder
         stackBuilder.addParentStack(MainActivity.class); // 加入目前要啟動的Activity，這個方法會將這個Activity的所有上層的Activity(Parents)都加到堆疊中
@@ -420,7 +432,11 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
         final PendingIntent pendingIntent = stackBuilder.getPendingIntent(requestCode, flags); // 取得PendingIntent
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); // 取得系統的通知服務
 
-        final Notification notification = new Notification.Builder(getApplicationContext()).setSmallIcon(R.drawable.connected).setContentTitle("MVP-A").setContentText(notification_text).setContentIntent(pendingIntent).build(); // 建立通知
+        builder = new Notification.Builder(getApplicationContext()).setSmallIcon(R.drawable.disconnected).setContentTitle("MVP-A").setContentText(notification_text).setContentIntent(pendingIntent);
+
+
+        notification =  builder.build();// 建立通知
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
         notificationManager.notify(notifyID, notification); // 發送通知
 
 
@@ -647,10 +663,12 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                         sms_switch.setEnabled(true);
                         call_button.setEnabled(true);
                         sms_button.setEnabled(true);
-                        info_textview.setText("Current Emergency Message is : "+Em_text+"Your Location.");
+                        info_textview.setText(Html.fromHtml("<u><FONT COLOR=\"#355EE6\" >" + "Edit Message: "+"</Font></u>"+"<FONT COLOR=\"#000000\" >"+Em_text+" [Your Location]."));
                         info_imageview.setBackgroundResource(R.drawable.normalinfo);
                         notification_text = "Defending Harm from you.";
-                        notificationManager.notify();
+                        builder.setContentText(notification_text);
+                        builder.setSmallIcon(R.drawable.connected);
+                        notificationManager.notify(1, builder.build());
                         //info_imageview.setImageResource(R.drawable.normalinfo);
                         info_textview.setBackgroundColor(getBaseContext().getResources().getColor(R.color.grey));
                         Toast.makeText(getBaseContext(), "Device Connected", Toast.LENGTH_SHORT).show();
