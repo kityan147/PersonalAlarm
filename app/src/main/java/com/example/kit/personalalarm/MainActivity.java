@@ -439,7 +439,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
 
 
         notification =  builder.build();// 建立通知
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        notification.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
         notificationManager.notify(notifyID, notification); // 發送通知
 
 
@@ -672,7 +672,11 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                         notification_text = "Defending Harm from you.";
                         builder.setContentText(notification_text);
                         builder.setSmallIcon(R.drawable.connected);
-                        notificationManager.notify(1, builder.build());
+
+                        notification = builder.build();
+                        notification.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
+
+                        notificationManager.notify(1, notification);
                         //info_imageview.setImageResource(R.drawable.normalinfo);
                         info_textview.setBackgroundColor(getBaseContext().getResources().getColor(R.color.grey));
                         Toast.makeText(getBaseContext(), "Device Connected", Toast.LENGTH_SHORT).show();
