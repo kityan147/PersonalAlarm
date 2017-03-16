@@ -150,7 +150,10 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
             @Override
             public void onClick(View v)
             {
-                mDataCommThread.write("4");
+                try {
+                    mDataCommThread.write("4");
+                }catch(Exception e)
+                {};
             }
         });
 
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
                 );
             */
         info_textview = (TextView) findViewById(R.id.info_textview);
-        info_textview.setVisibility(View.INVISIBLE);
+        info_textview.setVisibility(View.VISIBLE);
         info_textview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -429,7 +432,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
         final TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext()); // 建立TaskStackBuilder
         stackBuilder.addParentStack(MainActivity.class); // 加入目前要啟動的Activity，這個方法會將這個Activity的所有上層的Activity(Parents)都加到堆疊中
         stackBuilder.addNextIntent(intent); // 加入啟動Activity的Intent
-        final PendingIntent pendingIntent = stackBuilder.getPendingIntent(requestCode, flags); // 取得PendingIntent
+        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); // 取得系統的通知服務
 
         builder = new Notification.Builder(getApplicationContext()).setSmallIcon(R.drawable.disconnected).setContentTitle("MVP-A").setContentText(notification_text).setContentIntent(pendingIntent);
@@ -438,6 +441,7 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
         notification =  builder.build();// 建立通知
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         notificationManager.notify(notifyID, notification); // 發送通知
+
 
 
     }
