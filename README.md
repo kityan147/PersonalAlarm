@@ -9,7 +9,6 @@ Current State
 - Added Loading Dialog
 - settingCode for Hardware ('3': LED and Sound ON; '2':Sound ON only; '1':LED ON only; '0':ALL OFF)
 - Get Location via GPS.java and send sms with url.
-
-Missing Feature
-- Background Process
+- Backgound Process
 - Information text
+
