@@ -49,6 +49,7 @@ public class GPS extends Service implements LocationListener {
 
             if (!isNetworkon && !isGPSon) {
                 Toast.makeText(mContext, "No Network Service Provided", Toast.LENGTH_SHORT).show();
+                showSettingsAlert();
             } else {
                 isgetLocation = true;
                 if (isNetworkon) {

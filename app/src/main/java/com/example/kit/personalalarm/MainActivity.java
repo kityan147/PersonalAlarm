@@ -814,6 +814,12 @@ public class MainActivity extends AppCompatActivity  { //Author: YAN Tsz Kit (St
     }
 
 
+    @Override
+    public void onBackPressed()
+    {
+        //do nothing;
+    }
+
 /*
     private void getLocation()
     {
